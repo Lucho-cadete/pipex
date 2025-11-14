@@ -6,7 +6,7 @@
 /*   By: luimarti <luimarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/09 14:35:52 by luimarti          #+#    #+#             */
-/*   Updated: 2025/11/14 10:46:57 by luimarti         ###   ########.fr       */
+/*   Updated: 2025/11/14 16:34:48 by luimarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ void	close_all_parent(int pipex[2], t_files fds);
 void	error_exit(char *sms);
 t_files	open_files(char **argv);
 void	exec_cmd(char *cmd_line, int input_fd, int output_fd, char **envp);
-int		main(int argc, char **argv, char **envp);
 
 /*LIBFT_tools*/
 
@@ -66,3 +65,10 @@ void	error_exit(char *sms);
 
 char	*find_command(char *cmd, char **envp);
 void	ft_free_split(char **arr);
+
+/*BONUS*/
+
+void	validation_bonus_args(int argc);
+t_files	open_bonus_files(int argc, char **argv);
+int		make_bonus_child(char *cmd, int in, int out, char **envp);
+void	exec_pipeloop(int argc, char **argv, char **envp, t_files *fds);
