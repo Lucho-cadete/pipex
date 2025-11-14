@@ -5,67 +5,55 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: luimarti <luimarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/09 15:11:39 by luimarti          #+#    #+#             */
-/*   Updated: 2025/11/09 16:03:52 by luimarti         ###   ########.fr       */
+/*   Created: 2025/11/09 15:31:37 by luimarti          #+#    #+#             */
+/*   Updated: 2025/11/14 10:48:05 by luimarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	validacion_args(int argsc)
+int	open_reading(char *filename)
 {
-	if (argsc != 5)
+	int	archivo_fd;
+
+	archivo_fd = open(filename, O_RDONLY);
+	if (archivo_fd == -1)
 	{
-		perror("Invalid number of args.\n");
-		exit(1);
+		perror("Error by opening");
+		exit (-1);
 	}
+	return (archivo_fd);
 }
 
-char	*ft_strcpy(char *dest, char *src)
+int	open_writing(char *filename)
 {
-	int	i;
+	int	salida_fd;
 
-	i = 0;
-	while (src[i] != '\0')
+	salida_fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (salida_fd == -1)
 	{
-		dest[i] = src[i];
-		i++;
+		perror ("Error by writing");
+		exit (-1);
 	}
-	dest[i] = '\0';
-	return (dest);
+	return (salida_fd);
 }
 
-char	*ft_strcat(char *dest, char *src)
+void	close_all_parent(int pipex[2], t_files fds)
 {
-	char	*beginning;
-
-	beginning = dest;
-	while (*dest != '\0')
-		dest++;
-	while (*src != '\0')
-	{
-		*dest = *src;
-		dest++;
-		src++;
-	}
-	*dest = '\0';
-	return (beginning);
+	close(pipex[0]);
+	close(pipex[1]);
+	close(fds.infile);
+	close(fds.outfile);
 }
 
-void	*ft_calloc(size_t nmemb, size_t size)
+void	child_first(int pipex[2], t_files fds, char **argv, char **envp)
 {
-	unsigned char	*tmp;
-	size_t			i;
+	close(pipex[0]);
+	exec_cmd(argv[2], fds.infile, pipex[1], envp);
+}
 
-	if (nmemb == 0 || size == 0)
-		return (malloc(0));
-	if (nmemb > __SIZE_MAX__ / size)
-		return (NULL);
-	tmp = malloc (nmemb * size);
-	i = 0;
-	if (!tmp)
-		return (NULL);
-	while (i < nmemb * size)
-		tmp [i++] = 0;
-	return (tmp);
+void	child_second(int pipex[2], t_files fds, char **argv, char **envp)
+{
+	close(pipex[1]);
+	exec_cmd(argv[3], pipex[0], fds.outfile, envp);
 }

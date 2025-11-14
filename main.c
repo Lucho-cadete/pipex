@@ -1,22 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex_main.c                                       :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: luimarti <luimarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/09 14:19:22 by luimarti          #+#    #+#             */
-/*   Updated: 2025/11/09 15:27:09 by luimarti         ###   ########.fr       */
+/*   Updated: 2025/11/14 11:19:23 by luimarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-
-void	error_exit(char *sms)
-{
-	perror(sms);
-	exit(1);
-}
 
 t_files	open_files(char **argv)
 {
@@ -43,12 +37,12 @@ void	exec_cmd(char *cmd_line, int input_fd, int output_fd, char **envp)
 	args = ft_split(cmd_line, ' ');
 	if (!args || !args[0])
 		error_exit("invalid command");
-	cmd_path = find_command(args[0], envp);
+	cmd_path = check_command(args, envp);
 	if (!cmd_path)
 	{
-		ft_putstr_fd("pipex: Command not found: ", 2);
+		ft_putstr_fd("command not found: ", 2);
 		ft_putstr_fd(args[0], 2);
-		ft_putstr_fd("\n", 2);
+		write(2, "\n", 1);
 		ft_free_split(args);
 		exit(127);
 	}
@@ -59,7 +53,7 @@ void	exec_cmd(char *cmd_line, int input_fd, int output_fd, char **envp)
 	exit(1);
 }
 
-int	main(int argc, char **argv)
+int	main(int argc, char **argv, char **envp)
 {
 	int		pipex[2];
 	int		pid1;
@@ -74,14 +68,13 @@ int	main(int argc, char **argv)
 	if (pid1 == -1)
 		error_exit("fork");
 	if (pid1 == 0)
-		exec_cmd1(pipex, argv, fds.infile);
+		child_first(pipex, fds, argv, envp);
 	pid2 = fork();
 	if (pid2 == -1)
 		error_exit("fork2");
 	if (pid2 == 0)
-		exec_cmd2(pipex, argv, fds.outfile);
-	close(pipex[0]);
-	close(pipex[1]);
+		child_second(pipex, fds, argv, envp);
+	close_all_parent(pipex, fds);
 	waitpid(pid1, NULL, 0);
 	waitpid(pid2, NULL, 0);
 	return (0);

@@ -6,7 +6,7 @@
 /*   By: luimarti <luimarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/09 14:35:52 by luimarti          #+#    #+#             */
-/*   Updated: 2025/11/09 15:34:56 by luimarti         ###   ########.fr       */
+/*   Updated: 2025/11/14 10:46:57 by luimarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,23 +23,29 @@ typedef struct s_files
 	int	outfile;
 }	t_files;
 
-/*Main*/
+/*Main & Tools*/
 
+void	child_second(int pipex[2], t_files fds, char **argv, char **envp);
+void	child_first(int pipex[2], t_files fds, char **argv, char **envp);
 int		open_reading(char *filename);
 int		open_writing(char *filename);
+void	close_all_parent(int pipex[2], t_files fds);
 void	error_exit(char *sms);
 t_files	open_files(char **argv);
-void	exec_cmd1(int pipex[], char **argv, int infile_fd);
-void	exec_cmd2(int pipex[], char **argv, int outfile_fd);
-int		main(int argc, char **argv);
-int		abre_lectura(char *filename);
+void	exec_cmd(char *cmd_line, int input_fd, int output_fd, char **envp);
+int		main(int argc, char **argv, char **envp);
 
-/*Tools*/
+/*LIBFT_tools*/
 
-void	validacion_args(int argsc);
+size_t	ft_strlen(const char *str);
 char	*ft_strcpy(char *dest, char *src);
 char	*ft_strcat(char *dest, char *src);
 void	*ft_calloc(size_t nmemb, size_t size);
+void	ft_putstr_fd(char *s, int fd);
+int		ft_strncmp(const char *s1, const char *s2, size_t n);
+char	*ft_strchr(const char *str, int c);
+char	*ft_strdup(const char *s);
+char	*ft_strjoin(char const *s1, char const *s2);
 
 /*Split*/
 
@@ -48,3 +54,15 @@ char	**ft_split(const char *s, char c);
 int		subarray_count(const char *s, char c);
 char	**fill_split(char **big, const char *s, int word_count, char c);
 void	*free_split(char **big, int filled);
+
+/* Error_handling*/
+
+void	validacion_args(int argsc);
+void	print_error(char *msg, char *cmd, int code);
+char	*check_command(char **args, char **envp);
+void	error_exit(char *sms);
+
+/*Search_command*/
+
+char	*find_command(char *cmd, char **envp);
+void	ft_free_split(char **arr);
