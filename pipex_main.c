@@ -31,38 +31,32 @@ t_files	open_files(char **argv)
 	return (fds);
 }
 
-void	exec_cmd1(int pipex[], char **argv, int infile_fd)
+void	exec_cmd(char *cmd_line, int input_fd, int output_fd, char **envp)
 {
-	char	comando[60];
 	char	**args;
+	char	*cmd_path;
 
-	dup2(infile_fd, STDIN_FILENO);
-	dup2(pipex[1], STDOUT_FILENO);
-	close(infile_fd);
-	close(pipex[0]);
-	close(pipex[1]);
-	args = ft_split(argv[2], ' ');
-	ft_strcpy(comando, "/bin/");
-	ft_strcat(comando, args[0]);
-	execve(comando, args, NULL);
-	error_exit("execve cmd1");
-}
-
-void	exec_cmd2(int pipex[], char **argv, int outfile_fd)
-{
-	char	comando[60];
-	char	**args;
-
-	dup2(pipex[0], STDIN_FILENO);
-	dup2(outfile_fd, STDOUT_FILENO);
-	close(outfile_fd);
-	close(pipex[0]);
-	close(pipex[1]);
-	args = ft_split(argv[3], ' ');
-	ft_strcpy(comando, "/bin/");
-	ft_strcat(comando, args[0]);
-	execve(comando, args, NULL);
-	error_exit("execve cmd2");
+	dup2(input_fd, STDIN_FILENO);
+	dup2(output_fd, STDOUT_FILENO);
+	close(input_fd);
+	close(output_fd);
+	args = ft_split(cmd_line, ' ');
+	if (!args || !args[0])
+		error_exit("invalid command");
+	cmd_path = find_command(args[0], envp);
+	if (!cmd_path)
+	{
+		ft_putstr_fd("pipex: Command not found: ", 2);
+		ft_putstr_fd(args[0], 2);
+		ft_putstr_fd("\n", 2);
+		ft_free_split(args);
+		exit(127);
+	}
+	execve(cmd_path, args, envp);
+	perror("execve");
+	free(cmd_path);
+	ft_free_split(args);
+	exit(1);
 }
 
 int	main(int argc, char **argv)
