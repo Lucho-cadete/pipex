@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lucho <lucho@student.42.fr>                +#+  +:+       +#+        */
+/*   By: luimarti <luimarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/14 17:34:04 by luimarti          #+#    #+#             */
-/*   Updated: 2025/11/16 23:35:35 by lucho            ###   ########.fr       */
+/*   Updated: 2025/11/18 17:40:50 by luimarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,9 @@ int	run_heredoc(char *limiter)
 	if (pipe(fd) == -1)
 		error_exit("pipe");
 	lim_len = ft_strlen(limiter);
-	while (1)
+	while ((line = get_next_line(0)) != NULL)
 	{
 		ft_putstr_fd("heredoc> ", 1);
-		line = get_next_line(0);
-		if (!line)
-			break ;
 		if (!ft_strncmp(line, limiter, lim_len) && line[lim_len] == '\n')
 		{
 			free(line);
