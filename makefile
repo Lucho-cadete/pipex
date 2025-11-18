@@ -6,7 +6,7 @@
 #    By: luimarti <luimarti@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/09 15:17:20 by luimarti          #+#    #+#              #
-#    Updated: 2025/11/14 17:08:25 by luimarti         ###   ########.fr        #
+#    Updated: 2025/11/14 17:39:33 by luimarti         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,7 +31,9 @@ BONUS_SRC = main_bonus.c \
 			find_command.c \
 			libft2.c \
 			tools_for_bonus.c \
-			heredoc.c
+			heredoc.c \
+			get_next_line.c \
+			get_next_line_utils.c
 
 OBJ_DIR = o_files
 MANDATORY_OBJ = $(addprefix $(OBJ_DIR)/, $(MANDATORY_SRC:.c=.o))

@@ -3,25 +3,41 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: luimarti <luimarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lucho <lucho@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/09 14:35:52 by luimarti          #+#    #+#             */
-/*   Updated: 2025/11/14 16:34:48 by luimarti         ###   ########.fr       */
+/*   Updated: 2025/11/16 23:38:35 by lucho            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <sys/wait.h>
+#ifndef PIPEX_H
+# define PIPEX_H
+
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 1024
+# endif
+
+# include <unistd.h>
+# include <stdlib.h>
+# include <fcntl.h>
+# include <stdio.h>
+# include <sys/types.h>
+# include <sys/wait.h>
 
 typedef struct s_files
 {
 	int	infile;
 	int	outfile;
 }	t_files;
+
+typedef struct s_pipex
+{
+	int		argc;
+	char	**argv;
+	char	**envp;
+	t_files	*fds;
+	int		cmd_start;
+}	t_pipex;
 
 /*Main & Tools*/
 
@@ -30,7 +46,6 @@ void	child_first(int pipex[2], t_files fds, char **argv, char **envp);
 int		open_reading(char *filename);
 int		open_writing(char *filename);
 void	close_all_parent(int pipex[2], t_files fds);
-void	error_exit(char *sms);
 t_files	open_files(char **argv);
 void	exec_cmd(char *cmd_line, int input_fd, int output_fd, char **envp);
 
@@ -71,4 +86,22 @@ void	ft_free_split(char **arr);
 void	validation_bonus_args(int argc);
 t_files	open_bonus_files(int argc, char **argv);
 int		make_bonus_child(char *cmd, int in, int out, char **envp);
-void	exec_pipeloop(int argc, char **argv, char **envp, t_files *fds);
+void	exec_pipeloop(t_pipex *px);
+void	wait_all_children(void);
+
+/*Heredoc*/
+
+int		is_here_doc(char **argv);
+void	init_fds_and_mode(t_pipex *px, t_files *fds);
+int		run_heredoc(char *limiter);
+
+/*Get_next_line*/
+
+char	*extract_line(char *rest);
+char	*extract_rest(char *rest);
+char	*add_rest(char *rest, char *buffer);
+int		read_and_update_rest(int fd, char **rest);
+char	*get_next_line(int fd);
+size_t	ft_strlen_and_find_newline(const char *str, int *find_newline);
+
+#endif

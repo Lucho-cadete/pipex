@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: luimarti <luimarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lucho <lucho@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/14 13:19:34 by luimarti          #+#    #+#             */
-/*   Updated: 2025/11/14 16:52:20 by luimarti         ###   ########.fr       */
+/*   Updated: 2025/11/17 21:34:07 by lucho            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,24 +44,24 @@ int	make_bonus_child(char *cmd, int in, int out, char **envp)
 	return (pid);
 }
 
-void	exec_pipeloop(int argc, char **argv, char **envp, t_files *fds)
+void	exec_pipeloop(t_pipex *px)
 {
 	int	prev;
 	int	pipefd[2];
 	int	i;
 
-	prev = fds->infile;
-	i = 2;
-	while (i < argc - 1)
+	prev = px->fds->infile;
+	i = px->cmd_start;
+	while (i < px->argc - 1)
 	{
-		if (i < argc - 2 && pipe(pipefd) == -1)
+		if (i < px->argc - 2 && pipe(pipefd) == -1)
 			error_exit("pipe");
-		if (i == argc - 2)
-			make_bonus_child(argv[i], prev, fds->outfile, envp);
+		if (i == px->argc - 2)
+			make_bonus_child(px->argv[i], prev, px->fds->outfile, px->envp);
 		else
-			make_bonus_child(argv[i], prev, pipefd[1], envp);
+			make_bonus_child(px->argv[i], prev, pipefd[1], px->envp);
 		close(prev);
-		if (i < argc - 2)
+		if (i < px->argc - 2)
 		{
 			close(pipefd[1]);
 			prev = pipefd[0];
@@ -73,18 +73,27 @@ void	exec_pipeloop(int argc, char **argv, char **envp, t_files *fds)
 int	main(int argc, char **argv, char **envp)
 {
 	t_files	fds;
-	int		pid;
-	int		finished;
+	t_pipex	px;
 
-	finished = 0;
 	validation_bonus_args(argc);
-	fds = open_bonus_files(argc, argv);
-	exec_pipeloop(argc, argv, envp, &fds);
-	while (!finished)
+	px.envp = envp;
+	if (ft_strncmp(argv[1], "here_doc", 8) == 0)
 	{
-		pid = waitpid(-1, NULL, 0);
-		if (pid == -1)
-			finished = 1;
+		fds.infile = run_heredoc(argv[2]);
+		fds.outfile = open(argv[argc - 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+		px.argv = argv + 1;
+		px.argc = argc - 1;
+		px.cmd_start = 2;
 	}
+	else
+	{
+		fds = open_bonus_files(argc, argv);
+		px.argv = argv;
+		px.argc = argc;
+		px.cmd_start = 2;
+	}
+	px.fds = &fds;
+	exec_pipeloop(&px);
+	wait_all_children();
 	return (0);
 }

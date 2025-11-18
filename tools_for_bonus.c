@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tools_for_bonus.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: luimarti <luimarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lucho <lucho@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/14 14:59:52 by luimarti          #+#    #+#             */
-/*   Updated: 2025/11/14 16:52:24 by luimarti         ###   ########.fr       */
+/*   Updated: 2025/11/16 23:39:16 by lucho            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,4 +38,13 @@ void	exec_cmd(char *cmd_line, int input_fd, int output_fd, char **envp)
 	free(cmd_path);
 	ft_free_split(args);
 	exit(1);
+}
+
+void	wait_all_children(void)
+{
+	int	pid;
+
+	pid = 0;
+	while (pid != -1)
+		pid = waitpid(-1, NULL, 0);
 }
